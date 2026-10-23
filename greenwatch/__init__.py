@@ -1,0 +1,1 @@
+"""GreenCloud APAC stock monitor."""

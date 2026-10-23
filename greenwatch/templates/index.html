@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <meta name="description" content="GreenCloud APAC KVM stock, price, and Telegram alert monitor">
+  <title>GreenWatch · APAC stock monitor</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2310b981'/%3E%3Cpath d='m14 24 9 20 9-16 9 16 9-20' stroke='white' stroke-width='5' fill='none'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="/" aria-label="GreenWatch home"><span class="brand-mark">w</span>greenwatch<span class="brand-dot">.</span></a>
+    <div class="workspace"><span class="workspace-icon">G</span><div>GreenCloud VPS<small>Personal monitor</small></div><span class="workspace-arrow">⌄</span></div>
+    <p class="nav-label">WORKSPACE</p>
+    <nav aria-label="Main navigation">
+      <a class="nav-link selected" href="#overview"><span>▦</span> Overview <span class="nav-current"></span></a>
+      <a class="nav-link" href="#inventory"><span>▤</span> APAC inventory</a>
+      <a class="nav-link" href="#activity"><span>◷</span> Check activity</a>
+      <a class="nav-link" href="#configuration"><span>⚙</span> Configuration</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="watch-rule"><span class="rule-dot"></span><strong>Your watch rule</strong><p>APAC · KVM · $25 USD / year<br>Notify when stock ≥ 1</p></div>
+      <a class="source-link" href="https://greencloudvps.com/billing/store/budget-kvm-sale" target="_blank" rel="noreferrer">Open GreenCloud store <span>↗</span></a>
+      <div class="local-label"><span class="tiny-dot"></span> Self-hosted · SQLite</div>
+    </div>
+  </aside>
+  <div class="main-shell">
+    <header class="topbar"><div><span class="breadcrumb">Workspace</span><span class="slash">/</span>Overview</div><div class="top-right"><span id="timezone-label">Asia/Bangkok</span><span class="avatar">GW</span></div></header>
+    <main id="overview">
+      <div class="page-heading"><div><div class="eyebrow">GREEN CLOUD / ASIA PACIFIC</div><h1>A little watch. A great deal.</h1><p>Your APAC KVM inventory, checked around the clock.</p></div><button id="scrape-button" class="button primary"><span id="scrape-icon">↻</span><span id="scrape-label">Scrape now</span></button></div>
+      <div id="connection-error" class="notice error" role="alert" hidden></div>
+      <div id="warning" class="notice" role="status" hidden></div>
+      <div class="monitor-strip"><div><span id="health-dot" class="status-dot"></span><strong id="monitor-state">Connecting to monitor</strong><span class="strip-divider"></span><span>Every 6 hours · 4 checks / day</span></div><span class="next-check">Next check <strong id="countdown">—</strong></span></div>
+      <section class="metrics" aria-label="Monitor summary">
+        <article class="metric"><div class="metric-title">Matching plans <span class="metric-icon mint">⌕</span></div><div class="metric-value" id="metric-matches">—</div><div class="metric-note"><span class="tiny-dot mint-dot"></span>$25 / year · available now</div></article>
+        <article class="metric"><div class="metric-title">APAC locations <span class="metric-icon blue">◎</span></div><div class="metric-value" id="metric-locations">—</div><div class="metric-note" id="locations-note">Waiting for first check</div></article>
+        <article class="metric"><div class="metric-title">Messages delivered <span class="metric-icon violet">♧</span></div><div class="metric-value" id="metric-alerts">—</div><div class="metric-note" id="alerts-note">Telegram channel notifications</div></article>
+        <article class="metric"><div class="metric-title">Last successful check <span class="metric-icon peach">◷</span></div><div class="metric-value time-value" id="metric-last">—</div><div class="metric-note" id="last-note">Waiting for first check</div></article>
+      </section>
+      <div class="analysis-row">
+        <section class="panel chart-panel"><div class="panel-heading"><div><h2>Availability at a glance</h2><p>In-stock APAC plans matching your $25 annual target</p></div><span class="subtle-badge">Last 112 checks</span></div><div id="chart" class="chart" role="img" aria-label="Matching plan count over recent successful checks"><p class="empty-state">Your stock history will appear after the first check.</p></div><div class="chart-legend"><span class="tiny-dot mint-dot"></span> Matching plans <span id="chart-range"></span></div></section>
+        <section class="panel alert-panel"><div class="panel-heading"><h2>Every check, delivered.</h2><span class="telegram-icon">➤</span></div><p class="alert-description">A Telegram summary arrives after each completed scrape, even with no matches. Restock alerts still notify you when a $25 APAC plan becomes available.</p><div class="telegram-state"><span id="telegram-dot" class="tiny-dot"></span><strong id="telegram-state">Checking configuration</strong></div><div class="alert-details"><span>Price target</span><strong>$25.00 USD / year</strong><span>Minimum stock</span><strong>1 available unit</strong><span>Delivery</span><strong>Telegram channel</strong></div><button id="test-button" class="button secondary">Send test notification <span>↗</span></button><p id="pending-note" class="fine-print">Failed deliveries are retried automatically.</p></section>
+      </div>
+      <section id="inventory" class="panel inventory-panel"><div class="panel-heading inventory-heading"><div><h2>APAC inventory <span id="inventory-count" class="count-badge">0</span></h2><p>Live stock from the Budget KVM Sale store</p></div><div class="inventory-controls"><label class="sr-only" for="location-filter">Filter location</label><select id="location-filter"><option value="">All locations</option></select><div class="segmented" role="group" aria-label="Price filter"><button id="filter-target" class="active" aria-pressed="true">$25 plans</button><button id="filter-all" aria-pressed="false">All APAC</button></div></div></div><div class="table-scroll"><table><thead><tr><th>Plan / specifications</th><th>Location</th><th>Annual price</th><th>Stock</th><th>Status</th><th><span class="sr-only">Order</span></th></tr></thead><tbody id="products-body"><tr><td colspan="6" class="empty-state">Waiting for the first scrape…</td></tr></tbody></table></div><div class="table-footer"><span id="inventory-footer">Reading inventory…</span><span><span class="tiny-dot mint-dot"></span> A snapshot, not a reservation</span></div></section>
+      <div class="bottom-row">
+        <section id="activity" class="panel activity-panel"><div class="panel-heading"><div><h2>Check activity</h2><p>Recent scrapes and their results</p></div><span id="success-rate" class="subtle-badge">—</span></div><div id="runs" class="activity-list"><p class="empty-state">No checks yet.</p></div></section>
+        <section class="panel notifications-panel"><div class="panel-heading"><div><h2>Notification log</h2><p>Delivery history and retry status</p></div><span class="quiet-icon">♧</span></div><div id="notifications" class="notification-list"><p class="empty-state">No alerts yet. We'll keep watch.</p></div></section>
+      </div>
+      <section id="configuration" class="panel configuration-panel"><div><h2>Small footprint. Steady watch.</h2><p>One container, one database, and just four scheduled requests a day.</p></div><div class="config-grid"><div><span>Check schedule</span><strong id="schedule-text">00:00 · 06:00 · 12:00 · 18:00</strong><small id="schedule-zone">Asia/Bangkok</small></div><div><span>Weekly cleanup</span><strong>Sunday at 03:00</strong><small id="cleanup-note">Keep 30 days of history</small></div><div><span>Next cleanup</span><strong id="next-cleanup">—</strong><small id="last-cleanup">No cleanup has run yet</small></div><div><span>Dashboard access</span><strong id="auth-state">—</strong><small>Configure with environment variables</small></div></div></section>
+      <footer class="page-footer"><span><span class="tiny-dot mint-dot"></span> GreenWatch <span class="footer-separator">/</span> Built for patient deal hunters.</span><a href="https://greencloudvps.com/billing/store/budget-kvm-sale" target="_blank" rel="noreferrer">View source store ↗</a></footer>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>

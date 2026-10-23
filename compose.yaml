@@ -1,0 +1,36 @@
+services:
+  greenwatch:
+    build: .
+    restart: unless-stopped
+    init: true
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${PORT:-8080}:8080"
+    environment:
+      TZ: ${TZ:-Asia/Bangkok}
+      DATABASE_PATH: /data/greenwatch.sqlite3
+      RETENTION_DAYS: ${RETENTION_DAYS:-30}
+      NOTIFY_SCRAPE_SUMMARY: ${NOTIFY_SCRAPE_SUMMARY:-true}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+      DASHBOARD_USER: ${DASHBOARD_USER:-admin}
+      DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD:-}
+      APAC_EXTRA_KEYWORDS: ${APAC_EXTRA_KEYWORDS:-}
+    volumes:
+      - greenwatch-data:/data
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 128m
+    cpus: 0.50
+    pids_limit: 64
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
+volumes:
+  greenwatch-data:
